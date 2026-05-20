@@ -49,18 +49,6 @@ void inicializa(ArvB* a){
 }
 
 
-typedef struct auxNo{
-  int numChaves;
-  bool folha;
-  Registro regs[2*T-1];
-  struct auxNo* filhos[2*T];  // poderiamos alocar dinamicamente sob demanda
-} No;
-
-typedef struct{
-  No* raiz;
-} ArvB;
-
-
 
 void exibeNo(No* atual){
   int x;
