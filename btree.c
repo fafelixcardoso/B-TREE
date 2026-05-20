@@ -1,19 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef int TipoChave;
+typedef int bool;
 #define true 1
 #define false 0
-
 #define T 3
-
-typedef int bool;
-
-typedef int TipoChave;
 
 typedef struct {
   TipoChave chave;
-  // OUTROS CAMPOS
 } Registro;
+
+// NOVA ESTRUTURA DO NÓ DA ÁRVORE B+
+typedef struct auxNo {
+  int numChaves;
+  bool folha;
+ 
+  // Chaves:
+  // Nos internos: servem apenas como índices de roteamento.
+  // Nas folhas: são as chaves dos registros reais.
+  TipoChave chaves[2*T-1];
+
+  union {
+      // Campos EXCLUSIVOS de Nós Internos
+      struct {
+          struct auxNo* filhos[2*T];
+      } interno;
+      // Campos EXCLUSIVOS de Nós Folha
+      struct {
+          Registro regs[2*T-1]; // Os dados satélites/reais
+          struct auxNo* prox;   // Ponteiro para a lista encadeada
+      } folha;
+  } info;
+ 
+} No;
+
+typedef struct{
+  No* raiz;
+} ArvB;
+
+/* Função de inicialização adaptada */
+void inicializa(ArvB* a){
+  No* novo = (No*) malloc(sizeof(No));
+  novo->numChaves = 0;
+  novo->folha = true;
+  novo->info.folha.prox = NULL; // Importante: inicializa o fim da lista
+  a->raiz = novo;
+}
 
 
 typedef struct auxNo{
@@ -95,16 +128,6 @@ bool buscaRegistro(ArvB* a, TipoChave ch, Registro* reg){
 }
 
 
-/*
-  O novo no corresponde a um bloco que sera salvo no disco
-*/
-void inicializa(ArvB* a){
-  No* novo = (No*) malloc(sizeof(No));
-  novo->numChaves = 0;
-  novo->folha = true;
-  a->raiz = novo;
-  salvarNoDisco(novo);
-}
 
 void divideNoFilho(No* x, int i, No* y){
   No* novo = (No*) malloc(sizeof(No));
